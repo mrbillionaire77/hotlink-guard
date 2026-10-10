@@ -1,11 +1,86 @@
-<div align="center">
+# فاحص حماية الصور من Hotlinking | Image Hotlink Guard
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178c6.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6+-646cff.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38bdf8.svg)](https://tailwindcss.com/)
 
-  <h1>Built with AI Studio</h2>
+أداة ويب حديثة وعالية الأداء لفحص واختبار حماية الصور من الربط الخارجي المباشر (**Hotlinking**) وسرقة الباندويث، مصممة بواجهة نظيفة وسريعة وتعمل بالكامل داخل المتصفح.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+---
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## 🌟 المميزات الرئيسية (Key Features)
 
-</div>
+- ⚡ **فحص سريع فوري (Sub-200ms latency)**: يقوم بمحاكاة طلب الصورة من نطاق خارجي مع ترويسة `Referer` لاختبار استجابة الخادم فورياً.
+- 🛡️ **فحص سياسات الترويسة (Referrer-Policy)**: إمكانية فحص الصور تحت سياسات متعددة (`strict-origin-when-cross-origin`، `no-referrer`، `origin`).
+- 🔄 **تجاوز الذاكرة المؤقتة (Cache Busting)**: إضافة وسوم فريدة للرابط لمنع قراءة النسخة المخبأة في المتصفح.
+- 📁 **معاينة الصور المحلية (Local Inspector)**: فحص الأبعاد، حجم الملف، ونسبة العرض للارتفاع محلياً في متصفحك مع تفريغ وإدارة تلقائية للذاكرة (`URL.revokeObjectURL`) لمنع تسرب الذاكرة (Memory Leaks).
+- 🔒 **خصوصية 100%**: لا يتم إرسال أو حفظ أي صور أو روابط على خوادم وسيطة، الفحص يتم مباشرة داخل متصفح المستخدم.
+- 🌐 **دعم كامل للغتين (العربية والإنجليزية)**: كشف تلقائي عن لغة الجهاز وتبديل سريع بين اللغتين واتجاهي RTL / LTR.
+
+---
+
+## 🚀 طريقة التثبيت والتشغيل المحلي (Getting Started)
+
+### المتطلبات المسبقة:
+- [Node.js](https://nodejs.org/) الإصدار 18 أو أحدث.
+- npm أو pnpm أو yarn.
+
+### خطوات التثبيت:
+
+```bash
+# 1. استنساخ المستودع (Clone the repository)
+git clone https://github.com/mrbillionaire77/hotlink-guard.git
+
+# 2. الدخول إلى مجلد المشروع
+cd hotlink-guard
+
+# 3. تثبيت الحزم والمكتبات
+npm install
+
+# 4. تشغيل خادم التطوير المحلي
+npm run dev
+```
+
+سيفتح المشروع على العنوان: `http://localhost:3000`
+
+### أوامر المشروع المتاحة (Available Scripts):
+
+| الأمر | الوصف |
+| --- | --- |
+| `npm run dev` | تشغيل خادم التطوير مع التحديث السريع |
+| `npm run build` | بناء نسخة الإنتاج المحسنة في مجلد `dist` |
+| `npm run preview` | معاينة نسخة الإنتاج محلياً |
+| `npm run lint` | التحقق من صحة كود TypeScript وأنواعه |
+
+---
+
+## 📂 هيكلية المشروع (Project Architecture)
+
+```text
+├── LICENSE                 # رخصة MIT الرسمية
+├── README.md               # التوثيق والتعليمات
+├── index.html              # الصفحة الرئيسية وبيانات الميتا
+├── metadata.json           # إعدادات التطبيق
+├── package.json            # الحزم والاعتماديات
+├── src/
+│   ├── App.tsx             # التطبيق الرئيسي المتكامل
+│   ├── i18n/
+│   │   └── translations.ts # قاموس الترجمة ونظام التعرف التلقائي على اللغة
+│   ├── types/
+│   │   └── index.ts        # تعريفات الأنواع (TypeScript Types)
+│   ├── utils/
+│   │   └── hotlinkTester.ts# محرك الفحص والأداء وإدارة الترويسات
+│   ├── index.css           # تنسيقات التصميم المخصص وTailwind CSS
+│   └── main.tsx            # نقطة انطلاق React
+└── vite.config.ts          # إعدادات Vite ومترجم Tailwind
+```
+
+---
+
+## 📜 الترخيص (License)
+
+هذا المشروع مرخص بموجب **رخصة MIT (MIT License)** - راجع ملف [LICENSE](LICENSE) للتفاصيل الكاملة.
+
+حقوق النشر (c) 2026 مساهمو مشروع Hotlink Guard (Hotlink Guard Project Contributors). جميع الحقوق محفوظة للمستودع الرئيسي.

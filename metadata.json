@@ -1,0 +1,6 @@
+{
+  "name": "فاحص حماية الصور من Hotlinking",
+  "description": "أداة ويب عالية الأداء لفحص حماية الصور من الربط الخارجي المباشر (Hotlink Protection) وتوليد إعدادات الحماية لخوادم Nginx وApache وCloudflare.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
