@@ -58,7 +58,7 @@ export async function runHotlinkTest(options: RunTestOptions): Promise<TestResul
 
   return new Promise<TestResult>((resolve) => {
     let resolved = false;
-    const img = new Image();
+    const img = document.createElement('img');
 
     const cleanup = () => {
       img.onload = null;
@@ -78,6 +78,7 @@ export async function runHotlinkTest(options: RunTestOptions): Promise<TestResul
       finish({
         status: 'inconclusive',
         url: cleanUrl,
+        cacheBustedUrl: testUrl,
         testedAt: Date.now(),
         durationMs,
         referrerPolicy,
@@ -87,8 +88,9 @@ export async function runHotlinkTest(options: RunTestOptions): Promise<TestResul
       });
     }, timeoutMs);
 
+    // Apply strict referrer policy without CORS restrictions
     img.referrerPolicy = referrerPolicy;
-    img.crossOrigin = 'anonymous';
+    img.setAttribute('referrerpolicy', referrerPolicy);
 
     img.onload = () => {
       const durationMs = Math.round(performance.now() - startTime);
@@ -98,6 +100,7 @@ export async function runHotlinkTest(options: RunTestOptions): Promise<TestResul
       finish({
         status: 'allowed',
         url: cleanUrl,
+        cacheBustedUrl: testUrl,
         testedAt: Date.now(),
         durationMs,
         width,
@@ -115,6 +118,7 @@ export async function runHotlinkTest(options: RunTestOptions): Promise<TestResul
       finish({
         status: 'blocked',
         url: cleanUrl,
+        cacheBustedUrl: testUrl,
         testedAt: Date.now(),
         durationMs,
         referrerPolicy,

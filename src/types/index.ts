@@ -14,6 +14,7 @@ export type ReferrerPolicy =
 export interface TestResult {
   status: TestStatus;
   url: string;
+  cacheBustedUrl?: string;
   testedAt: number;
   durationMs: number;
   width?: number;

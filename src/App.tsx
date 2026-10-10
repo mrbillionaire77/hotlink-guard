@@ -47,12 +47,13 @@ export default function App() {
       let title = prev.explanationTitle;
       let detail = prev.explanationText;
 
+      const isNoReferer = prev.referrerPolicy === 'no-referrer';
       if (prev.status === 'allowed') {
-        title = t.resultGoodTitle;
-        detail = t.resultGoodDetail;
+        title = isNoReferer ? t.resultNoRefererGoodTitle : t.resultGoodTitle;
+        detail = isNoReferer ? t.resultNoRefererGoodDetail : t.resultGoodDetail;
       } else if (prev.status === 'blocked') {
-        title = t.resultBadTitle;
-        detail = t.resultBadDetail;
+        title = isNoReferer ? t.resultNoRefererBadTitle : t.resultBadTitle;
+        detail = isNoReferer ? t.resultNoRefererBadDetail : t.resultBadDetail;
       } else if (prev.status === 'inconclusive') {
         title = t.resultInconclusiveTitle;
         detail = t.resultInconclusiveDetail;
@@ -84,7 +85,8 @@ export default function App() {
 
   const handleTest = async (targetUrl?: string, overridePolicy?: ReferrerPolicy) => {
     const rawUrl = (targetUrl !== undefined ? targetUrl : url).trim();
-    const policyToUse = overridePolicy || referrerPolicy;
+    // Default to strict-origin-when-cross-origin (with Referer) unless overridePolicy is provided
+    const policyToUse = overridePolicy !== undefined ? overridePolicy : 'strict-origin-when-cross-origin';
 
     if (!rawUrl) {
       setResult({
@@ -131,12 +133,14 @@ export default function App() {
         timeoutMs: 9000,
       });
 
+      const isNoReferer = policyToUse === 'no-referrer';
+
       if (outcome.status === 'allowed') {
-        outcome.explanationTitle = t.resultGoodTitle;
-        outcome.explanationText = t.resultGoodDetail;
+        outcome.explanationTitle = isNoReferer ? t.resultNoRefererGoodTitle : t.resultGoodTitle;
+        outcome.explanationText = isNoReferer ? t.resultNoRefererGoodDetail : t.resultGoodDetail;
       } else if (outcome.status === 'blocked') {
-        outcome.explanationTitle = t.resultBadTitle;
-        outcome.explanationText = t.resultBadDetail;
+        outcome.explanationTitle = isNoReferer ? t.resultNoRefererBadTitle : t.resultBadTitle;
+        outcome.explanationText = isNoReferer ? t.resultNoRefererBadDetail : t.resultBadDetail;
       } else if (outcome.status === 'inconclusive') {
         outcome.explanationTitle = t.resultInconclusiveTitle;
         outcome.explanationText = t.resultInconclusiveDetail;
@@ -262,7 +266,7 @@ ${t.reportDetail} ${result.explanationText}
             dir="ltr"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !isTesting && handleTest()}
+            onKeyDown={(e) => e.key === 'Enter' && !isTesting && handleTest(url, showAdvanced ? referrerPolicy : 'strict-origin-when-cross-origin')}
             placeholder={t.urlPlaceholder}
             autoComplete="url"
             className="custom-input font-mono text-sm"
@@ -273,6 +277,7 @@ ${t.reportDetail} ${result.explanationText}
               onClick={() => {
                 setUrl('');
                 setResult(null);
+                setReferrerPolicy('strict-origin-when-cross-origin');
               }}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-200 bg-[#121a2e] px-2 py-0.5 rounded cursor-pointer border border-[#293650]"
             >
@@ -289,7 +294,7 @@ ${t.reportDetail} ${result.explanationText}
             onClick={() => {
               const u = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png';
               setUrl(u);
-              handleTest(u);
+              handleTest(u, 'strict-origin-when-cross-origin');
             }}
             className="px-2 py-0.5 rounded bg-[#0b1224] border border-[#293650] hover:border-[#7c83ff] text-slate-300 transition-colors cursor-pointer"
           >
@@ -300,7 +305,7 @@ ${t.reportDetail} ${result.explanationText}
             onClick={() => {
               const u = 'https://placehold.co/600x400/121a2e/7c83ff.png?text=Hotlink+Test';
               setUrl(u);
-              handleTest(u);
+              handleTest(u, 'strict-origin-when-cross-origin');
             }}
             className="px-2 py-0.5 rounded bg-[#0b1224] border border-[#293650] hover:border-[#7c83ff] text-slate-300 transition-colors cursor-pointer"
           >
@@ -352,7 +357,7 @@ ${t.reportDetail} ${result.explanationText}
         <button
           type="button"
           disabled={isTesting || !url.trim()}
-          onClick={() => handleTest()}
+          onClick={() => handleTest(url, showAdvanced ? referrerPolicy : 'strict-origin-when-cross-origin')}
           className="btn-accent"
         >
           {isTesting ? t.testingBtn : t.testBtn}
@@ -395,9 +400,10 @@ ${t.reportDetail} ${result.explanationText}
               {result.width && result.height && (
                 <span>{t.metricsDimensions} <strong className="text-white">{result.width}×{result.height}</strong></span>
               )}
+              <span className="text-slate-400">({result.referrerPolicy})</span>
             </div>
 
-            {/* If blocked, comparison button */}
+            {/* Comparison button */}
             {result.status === 'blocked' && result.referrerPolicy !== 'no-referrer' && (
               <div className="mt-2.5 pt-2 border-t border-white/10">
                 <button
@@ -409,14 +415,26 @@ ${t.reportDetail} ${result.explanationText}
                 </button>
               </div>
             )}
+            {result.referrerPolicy === 'no-referrer' && (
+              <div className="mt-2.5 pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => handleTest(result.url, 'strict-origin-when-cross-origin')}
+                  className="text-xs text-amber-300 hover:text-amber-200 underline cursor-pointer"
+                >
+                  {t.testWithReferer}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* Preview image if loaded */}
         {result && result.status === 'allowed' && (
           <img
-            src={result.url}
+            src={result.cacheBustedUrl || result.url}
             alt={t.previewAlt}
+            referrerPolicy={result.referrerPolicy}
             className="preview-img"
           />
         )}
